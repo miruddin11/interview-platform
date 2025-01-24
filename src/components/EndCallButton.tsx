@@ -17,11 +17,27 @@ function EndCallButton() {
     streamCallId: call?.id || "",
   });
 
-  if (!call || !interview) return null;
+  // Log diagnostic information for debugging
+  console.log('EndCallButton Debug:', {
+    call: !!call,
+    interview: !!interview,
+    localParticipant: !!localParticipant,
+    createdBy: call?.state.createdBy?.id,
+    localUserId: localParticipant?.userId
+  });
+
+  if (!call || !interview) {
+    console.warn('EndCallButton: Missing call or interview information');
+    return null;
+  }
 
   const isMeetingOwner = localParticipant?.userId === call.state.createdBy?.id;
 
-  if (!isMeetingOwner) return null;
+  // Optional: Log if user is not meeting owner
+  if (!isMeetingOwner) {
+    console.log('Current user is not the meeting owner');
+    return null;
+  }
 
   const endCall = async () => {
     try {
@@ -35,13 +51,13 @@ function EndCallButton() {
       router.push("/");
       toast.success("Meeting ended for everyone");
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to end meeting");
+      console.error("Failed to end meeting:", error);
+      toast.error(`Failed to end meeting: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   return (
-    <Button variant={"destructive"} onClick={endCall}>
+    <Button variant={"destructive"} onClick={endCall} className="w-full">
       End Meeting
     </Button>
   );
